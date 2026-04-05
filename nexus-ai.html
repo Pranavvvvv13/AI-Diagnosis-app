@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEXUS.AI — Predicting Medication Non-Adherence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy: #050d1a;
+    --navy2: #0a1628;
+    --blue: #0f2447;
+    --teal: #00e5b0;
+    --teal2: #00bfff;
+    --orange: #ff5722;
+    --orange2: #ff8c42;
+    --white: #f0f6ff;
+    --grey: #8a9bb5;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(0,229,176,0.15);
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 2px; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 5%;
+    background: rgba(5,13,26,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,229,176,0.08);
+    transition: all 0.3s;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800;
+    letter-spacing: 2px; color: var(--white);
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    color: var(--grey); text-decoration: none; font-size: 0.85rem;
+    font-weight: 500; letter-spacing: 0.5px;
+    transition: color 0.3s; position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 1px; background: var(--teal); transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    color: var(--navy); padding: 10px 22px; border-radius: 50px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    letter-spacing: 1px; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 0 20px rgba(0,229,176,0.3);
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,176,0.5); }
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer;
+    background: none; border: none; padding: 4px;
+  }
+  .hamburger span {
+    width: 24px; height: 2px; background: var(--teal);
+    transition: all 0.3s; border-radius: 2px;
+  }
+
+  /* ── MOBILE MENU ── */
+  .mobile-menu {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(5,13,26,0.98); backdrop-filter: blur(30px);
+    flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .mobile-menu.open { display: flex; opacity: 1; }
+  .mobile-menu a {
+    font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700;
+    color: var(--white); text-decoration: none; letter-spacing: 2px;
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--teal); }
+  .close-btn {
+    position: absolute; top: 24px; right: 5%;
+    background: none; border: none; color: var(--grey);
+    font-size: 2rem; cursor: pointer; line-height: 1;
+  }
+
+  /* ── SECTIONS ── */
+  section { min-height: 100vh; padding: 120px 5% 80px; position: relative; overflow: hidden; }
+
+  /* ── HERO ── */
+  #home {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,229,176,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,87,34,0.06) 0%, transparent 60%),
+                var(--navy);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,229,176,0.08); border: 1px solid rgba(0,229,176,0.2);
+    border-radius: 50px; padding: 8px 18px; margin-bottom: 32px;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 1.5px;
+    color: var(--teal); text-transform: uppercase;
+    animation: fadeUp 0.8s ease both;
+  }
+  .pulse-dot {
+    width: 6px; height: 6px; background: var(--teal);
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,176,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(0,229,176,0); }
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1.05; letter-spacing: -1px; margin-bottom: 24px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero-title .accent { color: var(--teal); }
+  .hero-title .accent2 { color: var(--orange2); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem); color: var(--grey);
+    max-width: 600px; line-height: 1.7; margin-bottom: 48px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-ctas {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    color: var(--navy); padding: 16px 36px; border-radius: 50px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem;
+    letter-spacing: 0.5px; border: none; cursor: pointer;
+    box-shadow: 0 0 30px rgba(0,229,176,0.3);
+    transition: transform 0.2s, box-shadow 0.3s; text-decoration: none;
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0,229,176,0.5); }
+  .btn-outline {
+    background: transparent; color: var(--white);
+    padding: 16px 36px; border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.15);
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.3s; text-decoration: none;
+  }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* Hero grid visual */
+  .hero-visual {
+    margin-top: 80px; width: 100%; max-width: 900px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+  .hero-stat-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 16px; padding: 24px; text-align: left;
+    backdrop-filter: blur(20px); position: relative; overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .hero-stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+  }
+  .hero-stat-card:hover { transform: translateY(-4px); border-color: rgba(0,229,176,0.3); }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800;
+    color: var(--teal); line-height: 1;
+  }
+  .stat-num.orange { color: var(--orange2); }
+  .stat-label { font-size: 0.8rem; color: var(--grey); margin-top: 6px; }
+
+  /* ── SECTION HEADERS ── */
+  .section-eyebrow {
+    display: inline-block; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--teal);
+    margin-bottom: 16px; padding: 6px 14px;
+    background: rgba(0,229,176,0.06); border-radius: 4px;
+    border-left: 2px solid var(--teal);
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-sub { color: var(--grey); font-size: 1.05rem; line-height: 1.7; max-width: 560px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,229,176,0.2), transparent);
+    margin: 0;
+  }
+
+  /* ── PROBLEM ── */
+  #problem {
+    background: radial-gradient(ellipse 70% 50% at 0% 50%, rgba(255,87,34,0.06) 0%, transparent 70%), var(--navy2);
+  }
+  .problem-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .problem-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .crisis-card {
+    background: var(--glass); border: 1px solid rgba(255,87,34,0.15);
+    border-radius: 16px; padding: 28px; position: relative; overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .crisis-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--orange), transparent);
+  }
+  .crisis-card:hover { transform: translateY(-4px); border-color: rgba(255,87,34,0.4); }
+  .crisis-num {
+    font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800;
+    color: var(--orange2); line-height: 1;
+  }
+  .crisis-desc { font-size: 0.82rem; color: var(--grey); margin-top: 8px; line-height: 1.5; }
+
+  .problem-text .section-sub { margin-bottom: 32px; }
+  .impact-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .impact-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 0.9rem; color: rgba(240,246,255,0.8); line-height: 1.5;
+  }
+  .impact-icon {
+    width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%;
+    background: rgba(0,229,176,0.1); display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; margin-top: 1px;
+  }
+
+  /* ── IMPACT ── */
+  #impact { background: var(--navy); }
+  .impact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; }
+  .impact-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 32px 24px; position: relative; overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .impact-card:hover { transform: translateY(-6px); border-color: rgba(0,229,176,0.3); }
+  .impact-card-icon { font-size: 2rem; margin-bottom: 16px; }
+  .impact-card-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; margin-bottom: 10px;
+  }
+  .impact-card-stat {
+    font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800;
+    color: var(--teal); line-height: 1; margin-bottom: 8px;
+  }
+  .impact-card-stat.red { color: #ff5c5c; }
+  .impact-card-stat.orange { color: var(--orange2); }
+  .impact-card p { font-size: 0.82rem; color: var(--grey); line-height: 1.6; }
+
+  /* Bar progress */
+  .progress-bar-wrap { margin-top: 12px; }
+  .progress-label { font-size: 0.72rem; color: var(--grey); margin-bottom: 4px; }
+  .progress-bar {
+    height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--teal2));
+    width: 0; transition: width 1.5s ease;
+  }
+  .progress-fill.red { background: linear-gradient(90deg, #ff5c5c, #ff8888); }
+  .progress-fill.orange { background: linear-gradient(90deg, var(--orange), var(--orange2)); }
+
+  /* ── TECHNOLOGY ── */
+  #technology {
+    background: radial-gradient(ellipse 80% 60% at 100% 0%, rgba(0,191,255,0.07) 0%, transparent 70%), var(--navy2);
+  }
+  .tech-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; margin-top: 60px; }
+  .tech-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 36px; position: relative; overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+    cursor: default;
+  }
+  .tech-card::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(0,229,176,0.05), transparent 70%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .tech-card:hover { transform: translateY(-5px); border-color: rgba(0,229,176,0.3); }
+  .tech-card:hover::after { opacity: 1; }
+  .tech-number {
+    font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800;
+    color: rgba(0,229,176,0.12); line-height: 1; margin-bottom: 16px;
+  }
+  .tech-card-icon { font-size: 2.2rem; margin-bottom: 14px; }
+  .tech-card-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; margin-bottom: 12px;
+    color: var(--teal);
+  }
+  .tech-card p { font-size: 0.88rem; color: var(--grey); line-height: 1.7; }
+  .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag {
+    font-size: 0.7rem; padding: 4px 10px; border-radius: 4px;
+    background: rgba(0,229,176,0.08); border: 1px solid rgba(0,229,176,0.15);
+    color: var(--teal); font-weight: 500; letter-spacing: 0.5px;
+  }
+
+  .tech-right { display: flex; flex-direction: column; gap: 20px; }
+
+  /* Data flow viz */
+  .data-flow {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 28px;
+  }
+  .data-flow-title {
+    font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--grey); margin-bottom: 20px;
+  }
+  .flow-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.82rem;
+  }
+  .flow-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .flow-line { flex: 1; height: 1px; background: rgba(0,229,176,0.15); position: relative; }
+  .flow-line::after {
+    content: '▶'; position: absolute; right: 0; top: -6px;
+    font-size: 0.6rem; color: rgba(0,229,176,0.4);
+  }
+  .flow-label { color: var(--grey); }
+
+  /* ── SOLUTIONS ── */
+  #solutions { background: var(--navy); }
+  .solutions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 60px; }
+  .solution-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 36px; position: relative; overflow: hidden;
+    transition: all 0.3s;
+  }
+  .solution-card:first-child {
+    grid-column: 1 / -1;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+    border-color: rgba(0,229,176,0.25);
+    background: linear-gradient(135deg, rgba(0,229,176,0.04), var(--glass));
+  }
+  .solution-card:hover { transform: translateY(-4px); border-color: rgba(0,229,176,0.3); }
+  .solution-icon { font-size: 2.5rem; margin-bottom: 16px; }
+  .solution-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem;
+    margin-bottom: 12px; color: var(--white);
+  }
+  .solution-desc { font-size: 0.88rem; color: var(--grey); line-height: 1.7; }
+  .solution-highlight {
+    display: inline-block; margin-top: 16px;
+    background: rgba(0,229,176,0.1); border: 1px solid rgba(0,229,176,0.2);
+    color: var(--teal); font-size: 0.75rem; font-weight: 600;
+    padding: 6px 14px; border-radius: 4px; letter-spacing: 0.5px;
+  }
+
+  /* ── HOW IT WORKS ── */
+  #how-it-works {
+    background: radial-gradient(ellipse 60% 60% at 50% 100%, rgba(0,229,176,0.05) 0%, transparent 70%), var(--navy2);
+  }
+  .timeline { display: flex; gap: 0; margin-top: 70px; position: relative; }
+  .timeline::before {
+    content: ''; position: absolute; top: 40px; left: 60px; right: 60px; height: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--orange2), var(--teal));
+    opacity: 0.3;
+  }
+  .timeline-step {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 0 16px; position: relative;
+  }
+  .step-node {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--navy); border: 2px solid var(--teal);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin-bottom: 28px; position: relative; z-index: 1;
+    transition: all 0.3s; box-shadow: 0 0 20px rgba(0,229,176,0.1);
+  }
+  .step-node:hover { background: rgba(0,229,176,0.1); box-shadow: 0 0 30px rgba(0,229,176,0.3); }
+  .step-day {
+    font-family: 'Syne', sans-serif; font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 1px; color: var(--teal); text-transform: uppercase;
+  }
+  .step-num {
+    font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--white);
+  }
+  .step-icon { font-size: 1.4rem; }
+  .step-label {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+    margin-bottom: 10px; color: var(--teal);
+  }
+  .step-desc { font-size: 0.8rem; color: var(--grey); line-height: 1.6; }
+  .timeline-step:last-child .step-node {
+    border-color: var(--orange2); box-shadow: 0 0 20px rgba(255,140,66,0.2);
+    background: rgba(255,140,66,0.08);
+  }
+  .timeline-step:last-child .step-day { color: var(--orange2); }
+  .timeline-step:last-child .step-label { color: var(--orange2); }
+
+  /* ── FUTURE ── */
+  #future {
+    background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,191,255,0.06) 0%, transparent 60%), var(--navy);
+  }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; }
+  .kpi-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 36px 28px; text-align: center;
+    position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s;
+  }
+  .kpi-card:hover { transform: translateY(-6px); border-color: rgba(0,229,176,0.35); }
+  .kpi-card::before {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  }
+  .kpi-value {
+    font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800;
+    color: var(--teal); line-height: 1; margin-bottom: 8px;
+  }
+  .kpi-value.orange2 { color: var(--orange2); }
+  .kpi-label {
+    font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 600;
+    color: var(--white); margin-bottom: 8px;
+  }
+  .kpi-sub { font-size: 0.78rem; color: var(--grey); line-height: 1.5; }
+
+  /* ── TEAM ── */
+  #team {
+    background: var(--navy2);
+  }
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; }
+  .team-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 32px 24px; text-align: center;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .team-card:hover { transform: translateY(-6px); border-color: rgba(0,229,176,0.3); }
+  .team-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    transform: scaleX(0); transition: transform 0.3s;
+  }
+  .team-card:hover::before { transform: scaleX(1); }
+  .team-avatar {
+    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px;
+    background: linear-gradient(135deg, var(--blue), rgba(0,229,176,0.2));
+    border: 2px solid rgba(0,229,176,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; transition: border-color 0.3s;
+  }
+  .team-card:hover .team-avatar { border-color: rgba(0,229,176,0.5); }
+  .team-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .team-role { font-size: 0.78rem; color: var(--teal); font-weight: 500; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .team-contribution { font-size: 0.78rem; color: var(--grey); line-height: 1.5; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy2); padding: 48px 5%; text-align: center;
+    border-top: 1px solid rgba(0,229,176,0.08);
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+    letter-spacing: 3px; margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .footer-sub { font-size: 0.82rem; color: var(--grey); margin-bottom: 24px; }
+  .footer-bottom { font-size: 0.75rem; color: rgba(138,155,181,0.4); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── FLOATING ORBS ── */
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0;
+  }
+  .orb-teal { background: rgba(0,229,176,0.07); }
+  .orb-orange { background: rgba(255,87,34,0.07); }
+  .orb-blue { background: rgba(0,191,255,0.07); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    .problem-layout { grid-template-columns: 1fr; gap: 48px; }
+    .tech-layout { grid-template-columns: 1fr; }
+    .solutions-grid { grid-template-columns: 1fr; }
+    .solution-card:first-child { grid-template-columns: 1fr; }
+    .timeline { flex-direction: column; gap: 32px; }
+    .timeline::before { display: none; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+    .impact-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-visual { grid-template-columns: 1fr; }
+    .problem-stats { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .kpi-grid, .team-grid, .impact-grid, .problem-stats { grid-template-columns: 1fr; }
+    section { padding: 100px 5% 60px; }
+  }
+
+  /* Content z-index */
+  .section-inner { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <div class="logo-icon">🧠</div>
+    NEXUS.AI
+  </div>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#technology">Technology</a></li>
+    <li><a href="#solutions">Solutions</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+  <a href="#solutions" class="nav-cta">GET STARTED</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-btn" id="closeMenu">✕</button>
+  <a href="#home" onclick="closeMobile()">Home</a>
+  <a href="#problem" onclick="closeMobile()">Problem</a>
+  <a href="#impact" onclick="closeMobile()">Impact</a>
+  <a href="#technology" onclick="closeMobile()">Technology</a>
+  <a href="#solutions" onclick="closeMobile()">Solutions</a>
+  <a href="#how-it-works" onclick="closeMobile()">How It Works</a>
+  <a href="#future" onclick="closeMobile()">Future Scope</a>
+  <a href="#team" onclick="closeMobile()">Team</a>
+</div>
+
+<!-- ══ HERO ══ -->
+<section id="home">
+  <div class="orb orb-teal" style="width:600px;height:600px;top:-200px;left:-100px;"></div>
+  <div class="orb orb-orange" style="width:400px;height:400px;bottom:-100px;right:-100px;"></div>
+  <div class="section-inner" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;">
+    <div class="hero-badge"><span class="pulse-dot"></span> AI-Powered Healthcare Intelligence</div>
+    <h1 class="hero-title">
+      Predicting <span class="accent">Silent</span><br>
+      Patient <span class="accent2">Drop-offs</span><br>
+      Before They Happen
+    </h1>
+    <p class="hero-sub">
+      NEXUS.AI combines Social Determinants of Health with behavioral biometrics to detect medication non-adherence up to <strong>7 days</strong> before the first missed dose — transforming chronic care.
+    </p>
+    <div class="hero-ctas">
+      <a href="#solutions" class="btn-primary">Explore Solutions</a>
+      <a href="#how-it-works" class="btn-outline">See How It Works</a>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-stat-card">
+        <div class="stat-num">7</div>
+        <div class="stat-label">Days early warning before first missed dose</div>
+      </div>
+      <div class="hero-stat-card">
+        <div class="stat-num">10M+</div>
+        <div class="stat-label">Anonymized patient journeys trained on</div>
+      </div>
+      <div class="hero-stat-card">
+        <div class="stat-num orange">$300B</div>
+        <div class="stat-label">Annual U.S. healthcare waste to address</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ PROBLEM ══ -->
+<section id="problem">
+  <div class="orb orb-orange" style="width:500px;height:500px;top:0;right:-200px;"></div>
+  <div class="section-inner">
+    <div class="problem-layout">
+      <div class="problem-text reveal">
+        <span class="section-eyebrow">The Crisis</span>
+        <h2 class="section-title">A Silent Epidemic Nobody's Watching</h2>
+        <p class="section-sub">Half of all patients quietly stop taking their medications within 6 months — without a single alarm bell. Doctors don't know. Families don't know. Until it's too late.</p>
+        <ul class="impact-list" style="margin-top:32px;">
+          <li>
+            <div class="impact-icon">🫀</div>
+            Untreated hypertension raises stroke risk by <strong>&nbsp;3×</strong> and kidney failure risk by <strong>&nbsp;2×</strong>
+          </li>
+          <li>
+            <div class="impact-icon">💊</div>
+            125,000 preventable deaths annually linked to medication non-adherence
+          </li>
+          <li>
+            <div class="impact-icon">🏥</div>
+            These "silent drop-offs" go undetected by healthcare providers, creating dangerous gaps
+          </li>
+          <li>
+            <div class="impact-icon">⚠️</div>
+            Traditional reminder systems fail to address the root causes of non-adherence
+          </li>
+        </ul>
+      </div>
+      <div class="problem-stats reveal" style="transition-delay:0.15s;">
+        <div class="crisis-card">
+          <div class="crisis-num">50%</div>
+          <div class="crisis-desc">of patients stop medications within 6 months — undetected</div>
+        </div>
+        <div class="crisis-card">
+          <div class="crisis-num">$300B</div>
+          <div class="crisis-desc">in annual U.S. healthcare waste from non-adherence</div>
+        </div>
+        <div class="crisis-card">
+          <div class="crisis-num">125K</div>
+          <div class="crisis-desc">preventable deaths every year in the U.S. alone</div>
+        </div>
+        <div class="crisis-card">
+          <div class="crisis-num">38%</div>
+          <div class="crisis-desc">of diabetes patients are sub-adherent to their medication</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ IMPACT ══ -->
+<section id="impact">
+  <div class="section-inner">
+    <span class="section-eyebrow">By the Numbers</span>
+    <h2 class="section-title reveal">The Scale of Non-Adherence</h2>
+    <div class="impact-grid">
+      <div class="impact-card reveal">
+        <div class="impact-card-icon">🩸</div>
+        <div class="impact-card-title">Diabetes Risk</div>
+        <div class="impact-card-stat">38%</div>
+        <p>of diabetes patients are sub-adherent, leading to uncontrolled blood sugar and severe complications</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-label">Sub-adherence rate</div>
+          <div class="progress-bar"><div class="progress-fill orange" data-width="38"></div></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" style="transition-delay:0.1s;">
+        <div class="impact-card-icon">❤️‍🩹</div>
+        <div class="impact-card-title">Hypertension Gap</div>
+        <div class="impact-card-stat orange">45%</div>
+        <p>of hypertension patients miss doses regularly, creating silent dangerous health gaps</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-label">Patients missing doses</div>
+          <div class="progress-bar"><div class="progress-fill orange" data-width="45"></div></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" style="transition-delay:0.2s;">
+        <div class="impact-card-icon">🧠</div>
+        <div class="impact-card-title">Stroke Risk</div>
+        <div class="impact-card-stat red">3×</div>
+        <p>higher stroke risk from untreated hypertension — early AI intervention can prevent these outcomes</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-label">Elevated risk factor</div>
+          <div class="progress-bar"><div class="progress-fill red" data-width="75"></div></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" style="transition-delay:0.05s;">
+        <div class="impact-card-icon">🚨</div>
+        <div class="impact-card-title">Silent Drop-offs</div>
+        <div class="impact-card-stat">50%</div>
+        <p>of patients stop medications within 6 months without any warning signs to healthcare providers</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-label">Undetected discontinuation</div>
+          <div class="progress-bar"><div class="progress-fill" data-width="50"></div></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" style="transition-delay:0.15s;">
+        <div class="impact-card-icon">🫘</div>
+        <div class="impact-card-title">Kidney Failure</div>
+        <div class="impact-card-stat red">2×</div>
+        <p>higher kidney failure risk in non-adherent hypertension patients, resulting in costly dialysis</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-label">Relative risk multiplier</div>
+          <div class="progress-bar"><div class="progress-fill red" data-width="60"></div></div>
+        </div>
+      </div>
+      <div class="impact-card reveal" style="transition-delay:0.25s;">
+        <div class="impact-card-icon">💰</div>
+        <div class="impact-card-title">Healthcare Cost</div>
+        <div class="impact-card-stat orange">$300B</div>
+        <p>in annual U.S. healthcare waste and 125,000 preventable deaths directly attributed to non-adherence</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-label">Preventable economic burden</div>
+          <div class="progress-bar"><div class="progress-fill orange" data-width="85"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ TECHNOLOGY ══ -->
+<section id="technology">
+  <div class="orb orb-blue" style="width:500px;height:500px;top:-100px;right:-150px;"></div>
+  <div class="section-inner">
+    <span class="section-eyebrow">What Sets Us Apart</span>
+    <h2 class="section-title reveal">Technological Standouts</h2>
+    <p class="section-sub reveal">Three proprietary pillars that no other platform combines — making NEXUS.AI uniquely predictive.</p>
+    <div class="tech-layout">
+      <div>
+        <div class="tech-card reveal" style="margin-bottom:20px;">
+          <div class="tech-number">01</div>
+          <div class="tech-card-icon">🌐</div>
+          <div class="tech-card-title">SDoH Integration</div>
+          <p>Combines Social Determinants of Health data — including transport barriers, cost factors, and access issues — to identify friction points before non-adherence occurs. We look beyond the clinic.</p>
+          <div class="tech-tags">
+            <span class="tag">Transport Barriers</span>
+            <span class="tag">Cost Factors</span>
+            <span class="tag">Access Issues</span>
+          </div>
+        </div>
+        <div class="tech-card reveal" style="transition-delay:0.1s;">
+          <div class="tech-number">02</div>
+          <div class="tech-card-icon">📡</div>
+          <div class="tech-card-title">Behavioral Biometrics</div>
+          <p>Detects subtle changes in patient behavior — reduced activity, sleep disruptions, pattern irregularities — trained on 10M+ anonymized patient journeys to recognize what's invisible to the human eye.</p>
+          <div class="tech-tags">
+            <span class="tag">Sleep Patterns</span>
+            <span class="tag">Activity Levels</span>
+            <span class="tag">10M+ Journeys</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-right reveal" style="transition-delay:0.2s;">
+        <div class="tech-card">
+          <div class="tech-number">03</div>
+          <div class="tech-card-icon">⚡</div>
+          <div class="tech-card-title">AI Friction Model</div>
+          <p>Our proprietary model generates real-time predictive risk scores, identifying high-risk patients up to 7 days before the first missed dose — enabling proactive, not reactive, care.</p>
+          <div class="tech-tags">
+            <span class="tag">Real-time Scoring</span>
+            <span class="tag">7-Day Prediction</span>
+            <span class="tag">Proprietary Model</span>
+          </div>
+        </div>
+        <div class="data-flow">
+          <div class="data-flow-title">Live Data Pipeline</div>
+          <div class="flow-row">
+            <div class="flow-dot" style="background:var(--teal);"></div>
+            <span class="flow-label">Wearable Sensors</span>
+            <div class="flow-line"></div>
+            <span class="flow-label" style="color:var(--white);">Activity Data</span>
+          </div>
+          <div class="flow-row">
+            <div class="flow-dot" style="background:var(--teal2);"></div>
+            <span class="flow-label">Pharmacy Refills</span>
+            <div class="flow-line"></div>
+            <span class="flow-label" style="color:var(--white);">Dose Timing</span>
+          </div>
+          <div class="flow-row">
+            <div class="flow-dot" style="background:var(--orange2);"></div>
+            <span class="flow-label">SDoH Sources</span>
+            <div class="flow-line"></div>
+            <span class="flow-label" style="color:var(--white);">Friction Score</span>
+          </div>
+          <div class="flow-row">
+            <div class="flow-dot" style="background:#ff5c5c;"></div>
+            <span class="flow-label">AI Friction Model</span>
+            <div class="flow-line"></div>
+            <span class="flow-label" style="color:var(--teal);">Risk Alert ⚡</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ SOLUTIONS ══ -->
+<section id="solutions">
+  <div class="section-inner">
+    <span class="section-eyebrow">Our Platform</span>
+    <h2 class="section-title reveal">Complete Care Solutions</h2>
+    <div class="solutions-grid">
+      <div class="solution-card reveal">
+        <div>
+          <div class="solution-icon">🔮</div>
+          <div class="solution-title">Predictive Prevention Engine</div>
+          <div class="solution-desc">Our core AI detects "silent drop-offs" up to 7 days before the first missed dose, giving care teams and patients a crucial head start. Powered by our proprietary Friction Model trained on millions of real patient journeys.</div>
+          <span class="solution-highlight">7 Days Early Detection</span>
+        </div>
+        <div style="background:rgba(0,229,176,0.04);border:1px solid rgba(0,229,176,0.1);border-radius:12px;padding:20px;">
+          <div style="font-size:0.72rem;color:var(--grey);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;">Risk Score Monitor</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px;"><span style="color:var(--grey);">Patient A – Metformin</span><span style="color:#ff5c5c;font-weight:600;">HIGH RISK 87%</span></div>
+              <div class="progress-bar"><div class="progress-fill red" style="width:87%;transition:none;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px;"><span style="color:var(--grey);">Patient B – Lisinopril</span><span style="color:var(--orange2);font-weight:600;">MED 54%</span></div>
+              <div class="progress-bar"><div class="progress-fill orange" style="width:54%;transition:none;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px;"><span style="color:var(--grey);">Patient C – Atorvastatin</span><span style="color:var(--teal);font-weight:600;">LOW 12%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:12%;transition:none;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="solution-card reveal" style="transition-delay:0.1s;">
+        <div class="solution-icon">💬</div>
+        <div class="solution-title">Smart Psychological Nudges</div>
+        <div class="solution-desc">AI-driven tailored messaging that addresses the specific behavioral barriers each patient faces — not generic reminders, but personalized motivational prompts that actually work.</div>
+        <span class="solution-highlight">Personalized Messaging</span>
+      </div>
+      <div class="solution-card reveal" style="transition-delay:0.15s;">
+        <div class="solution-icon">🛡️</div>
+        <div class="solution-title">Guardian Alerts</div>
+        <div class="solution-desc">Automatically engages family members or caregivers when risk is detected. Coordinates pharmacy pickups, schedules transport — closing the gap before it widens.</div>
+        <span class="solution-highlight">Family Integration</span>
+      </div>
+      <div class="solution-card reveal" style="transition-delay:0.2s;">
+        <div class="solution-icon">🏥</div>
+        <div class="solution-title">Clinician Dashboard</div>
+        <div class="solution-desc">Seamless EHR integration with Epic and Cerner. Enables medical triage with full patient risk context — giving clinicians what they need, when they need it.</div>
+        <span class="solution-highlight">Epic & Cerner Ready</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section id="how-it-works">
+  <div class="orb orb-teal" style="width:400px;height:400px;bottom:-100px;left:-100px;"></div>
+  <div class="section-inner">
+    <span class="section-eyebrow">The Journey</span>
+    <h2 class="section-title reveal">How NEXUS.AI Works</h2>
+    <p class="section-sub reveal">From a subtle biometric signal to a secured medication delivery — in 3 days.</p>
+    <div class="timeline reveal">
+      <div class="timeline-step">
+        <div class="step-node">
+          <div class="step-day">Day 1</div>
+          <div class="step-num">📡</div>
+        </div>
+        <div class="step-label">Detection</div>
+        <div class="step-desc">Nexus detects a 15% dip in activity and sleep patterns through behavioral biometrics, flagging early warning signs of potential non-adherence</div>
+      </div>
+      <div class="timeline-step">
+        <div class="step-node">
+          <div class="step-day">Day 2</div>
+          <div class="step-num">🔮</div>
+        </div>
+        <div class="step-label">Prediction</div>
+        <div class="step-desc">AI predicts a refill delay due to transport issues using SDoH data. The Friction Model generates real-time risk scores and triggers intervention protocol</div>
+      </div>
+      <div class="timeline-step">
+        <div class="step-node">
+          <div class="step-day">Day 3</div>
+          <div class="step-num">🛡️</div>
+        </div>
+        <div class="step-label">Intervention</div>
+        <div class="step-desc">Guardian Alerts notify the patient's caregiver. System automatically schedules a pharmacy ride, sends personalized nudges, and alerts the clinician</div>
+      </div>
+      <div class="timeline-step">
+        <div class="step-node" style="border-color:var(--orange2);">
+          <div class="step-day" style="color:var(--orange2);">Result</div>
+          <div class="step-icon">✅</div>
+        </div>
+        <div class="step-label" style="color:var(--orange2);">Adherence Secured</div>
+        <div class="step-desc">Patient receives medication on time. Silent drop-off prevented 7 days before the first missed dose. Family engaged proactively in ongoing care</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ FUTURE ══ -->
+<section id="future">
+  <div class="section-inner">
+    <span class="section-eyebrow">Impact Goals</span>
+    <h2 class="section-title reveal">Future Scope & Vision</h2>
+    <p class="section-sub reveal">Our targets for transforming medication adherence at global scale by 2026.</p>
+    <div class="kpi-grid">
+      <div class="kpi-card reveal">
+        <div class="kpi-value">+40%</div>
+        <div class="kpi-label">Adherence Boost</div>
+        <div class="kpi-sub">Projected increase in medication adherence rates by end of 2026</div>
+      </div>
+      <div class="kpi-card reveal" style="transition-delay:0.1s;">
+        <div class="kpi-value orange2">-38%</div>
+        <div class="kpi-label">Fewer Readmissions</div>
+        <div class="kpi-sub">Reduction in hospital readmissions through proactive early intervention</div>
+      </div>
+      <div class="kpi-card reveal" style="transition-delay:0.2s;">
+        <div class="kpi-value">7:1</div>
+        <div class="kpi-label">ROI for Payers</div>
+        <div class="kpi-sub">Return on investment for health insurance payers and care organizations</div>
+      </div>
+      <div class="kpi-card reveal" style="transition-delay:0.05s;">
+        <div class="kpi-value orange2">1000+</div>
+        <div class="kpi-label">Health Systems</div>
+        <div class="kpi-sub">Hospital and clinic systems targeted for platform adoption globally</div>
+      </div>
+      <div class="kpi-card reveal" style="transition-delay:0.15s;">
+        <div class="kpi-value">85%</div>
+        <div class="kpi-label">Patient Retention</div>
+        <div class="kpi-sub">Patient retention rate achieved through personalized engagement</div>
+      </div>
+      <div class="kpi-card reveal" style="transition-delay:0.25s;">
+        <div class="kpi-value orange2">🌍</div>
+        <div class="kpi-label">Global Scaling</div>
+        <div class="kpi-sub">Expanding across payers worldwide — starting with US, then EU and Asia</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ TEAM ══ -->
+<section id="team">
+  <div class="section-inner">
+    <span class="section-eyebrow">The People</span>
+    <h2 class="section-title reveal">Meet the Team</h2>
+    <p class="section-sub reveal">Six passionate builders combining AI, healthcare, and design to solve a problem that affects millions.</p>
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-avatar">👩‍💼</div>
+        <div class="team-name">Team Lead</div>
+        <div class="team-role">Product & Strategy</div>
+        <div class="team-contribution">Vision, roadmap, and platform strategy. Driving NEXUS.AI from concept to healthcare transformation.</div>
+      </div>
+      <div class="team-card reveal" style="transition-delay:0.08s;">
+        <div class="team-avatar">🧑‍🤖</div>
+        <div class="team-name">AI Engineer</div>
+        <div class="team-role">Machine Learning</div>
+        <div class="team-contribution">Built the Friction Model and behavioral biometrics engine. Trained on 10M+ patient journeys.</div>
+      </div>
+      <div class="team-card reveal" style="transition-delay:0.16s;">
+        <div class="team-avatar">👩‍💻</div>
+        <div class="team-name">Frontend Dev</div>
+        <div class="team-role">UI / UX Engineering</div>
+        <div class="team-contribution">Designed and built the patient-facing interface with accessibility and clarity for all ages.</div>
+      </div>
+      <div class="team-card reveal" style="transition-delay:0.06s;">
+        <div class="team-avatar">🧑‍⚕️</div>
+        <div class="team-name">Clinical Advisor</div>
+        <div class="team-role">Healthcare Domain Expert</div>
+        <div class="team-contribution">Ensures clinical accuracy, EHR integration design, and real-world care workflow alignment.</div>
+      </div>
+      <div class="team-card reveal" style="transition-delay:0.14s;">
+        <div class="team-avatar">👩‍🔬</div>
+        <div class="team-name">Data Scientist</div>
+        <div class="team-role">SDoH & Analytics</div>
+        <div class="team-contribution">Social Determinants of Health integration, data pipeline architecture, and risk scoring validation.</div>
+      </div>
+      <div class="team-card reveal" style="transition-delay:0.22s;">
+        <div class="team-avatar">🧑‍💻</div>
+        <div class="team-name">Backend Dev</div>
+        <div class="team-role">Systems & APIs</div>
+        <div class="team-contribution">API architecture, Epic/Cerner EHR integration, Guardian Alert engine, and cloud infrastructure.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-logo">NEXUS.AI</div>
+  <p class="footer-sub">Predicting & Preventing Medication Non-Adherence — One Patient at a Time</p>
+  <div class="footer-bottom">© 2025 NEXUS.AI. Built with ❤️ for patients everywhere.</div>
+</footer>
+
+<script>
+  // ── Hamburger
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const closeMenu = document.getElementById('closeMenu');
+  hamburger.addEventListener('click', () => mobileMenu.classList.add('open'));
+  closeMenu.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  function closeMobile() { mobileMenu.classList.remove('open'); }
+
+  // ── Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ── Progress bars
+  const progressObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const fills = e.target.querySelectorAll('.progress-fill[data-width]');
+        fills.forEach(fill => {
+          fill.style.width = fill.dataset.width + '%';
+        });
+      }
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.impact-card, .solution-card').forEach(el => progressObserver.observe(el));
+
+  // ── Counter animation
+  function animateCounter(el, target, suffix='') {
+    let current = 0;
+    const step = target / 60;
+    const update = () => {
+      current = Math.min(current + step, target);
+      el.textContent = (suffix === '%' || suffix === 'B') 
+        ? Math.round(current) + suffix 
+        : Math.round(current);
+      if (current < target) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+  }
+
+  // ── Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    if (window.scrollY > 60) {
+      nav.style.padding = '14px 5%';
+    } else {
+      nav.style.padding = '20px 5%';
+    }
+  });
+</script>
+</body>
+</html>

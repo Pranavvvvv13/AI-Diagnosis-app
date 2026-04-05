@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NEXUS.AI — Your Medicine Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#f0f7ff; --bg2:#ffffff; --card:#ffffff;
+  --primary:#1a6fc4; --primary-dark:#0f4f91; --primary-light:#e8f1fb;
+  --green:#1a9e5c; --green-light:#e6f7ef;
+  --orange:#e07b00; --orange-light:#fff4e0;
+  --red:#cc3333; --red-light:#fdecea;
+  --purple:#7c4dff; --purple-light:#f0ebff;
+  --text:#1a2340; --text2:#3d4f6e; --text3:#6b7a99;
+  --border:#d0ddef; --shadow:0 4px 24px rgba(26,111,196,0.10);
+  --shadow-card:0 2px 16px rgba(0,0,0,0.07);
+  --radius:20px; --font-base:19px;
+}
+.dark {
+  --bg:#0d1b2e; --bg2:#142236; --card:#1a2e47;
+  --primary:#4da3ff; --primary-dark:#2d8aff; --primary-light:#1a2e47;
+  --green:#2ecc82; --green-light:#0d2e1f;
+  --orange:#ffaa33; --orange-light:#2e1f00;
+  --red:#ff6b6b; --red-light:#2e0d0d;
+  --purple:#b39dff; --purple-light:#1a1030;
+  --text:#e8f1ff; --text2:#b0c4de; --text3:#7a90b0;
+  --border:#2a3f5f; --shadow:0 4px 24px rgba(0,0,0,0.3);
+  --shadow-card:0 2px 16px rgba(0,0,0,0.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:var(--font-base);}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:2px;}
+
+/* TOP BAR */
+.topbar{background:var(--bg2);border-bottom:2px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1.3rem;color:var(--primary);}
+.logo-pill{background:var(--primary);color:white;border-radius:10px;padding:5px 11px;font-size:.95rem;font-weight:900;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.font-controls{display:flex;align-items:center;gap:4px;background:var(--bg);border-radius:50px;padding:5px 8px;border:2px solid var(--border);}
+.font-btn{background:none;border:none;cursor:pointer;color:var(--text2);font-family:'Nunito',sans-serif;font-weight:800;border-radius:50px;padding:3px 8px;transition:all .2s;line-height:1;}
+.font-btn:hover,.font-btn.active{background:var(--primary);color:white;}
+.font-btn.s{font-size:.7rem;}.font-btn.m{font-size:.85rem;}.font-btn.l{font-size:1rem;}
+.dark-btn{background:var(--bg);border:2px solid var(--border);border-radius:50px;padding:6px 14px;cursor:pointer;font-size:.9rem;transition:all .2s;color:var(--text);}
+.dark-btn:hover{background:var(--primary);color:white;border-color:var(--primary);}
+
+/* GREETING */
+.greeting{background:linear-gradient(135deg,var(--primary),var(--primary-dark));padding:24px 20px;color:white;text-align:center;}
+.greet-time{font-size:.78rem;opacity:.8;letter-spacing:1px;margin-bottom:3px;}
+.greet-name{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.5rem;}
+.greet-sub{font-size:.82rem;opacity:.8;margin-top:3px;}
+
+/* PAGES */
+.page{display:none;padding:20px 16px 100px;max-width:680px;margin:0 auto;}
+.page.active{display:block;}
+
+/* SECTION LABEL */
+.slabel{font-family:'Nunito',sans-serif;font-weight:800;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin:28px 0 12px;padding-left:2px;}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--radius);border:2px solid var(--border);padding:20px;box-shadow:var(--shadow-card);margin-bottom:14px;}
+.card-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;margin-bottom:14px;color:var(--text);}
+
+/* MED CARDS */
+.med-card{background:var(--card);border-radius:var(--radius);border:2px solid var(--border);padding:18px 20px;display:flex;align-items:center;gap:16px;margin-bottom:12px;box-shadow:var(--shadow-card);transition:all .25s;cursor:pointer;position:relative;overflow:hidden;}
+.med-card:hover{transform:translateY(-2px);border-color:var(--primary);}
+.med-card.taken{border-color:var(--green);background:var(--green-light);}
+.med-icon{width:58px;height:58px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.7rem;background:var(--primary-light);}
+.med-card.taken .med-icon{background:var(--green-light);}
+.med-info{flex:1;}
+.med-name{font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;color:var(--text);}
+.med-detail{font-size:.8rem;color:var(--text3);margin-top:2px;}
+.med-time{font-size:.75rem;font-weight:700;color:var(--primary);background:var(--primary-light);padding:3px 10px;border-radius:50px;margin-top:5px;display:inline-block;}
+.med-card.taken .med-time{color:var(--green);background:var(--green-light);}
+.check-btn{width:52px;height:52px;border-radius:50%;border:3px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;transition:all .25s;flex-shrink:0;}
+.check-btn:hover{border-color:var(--green);background:var(--green-light);}
+.med-card.taken .check-btn{background:var(--green);border-color:var(--green);color:white;}
+.taken-badge{position:absolute;top:10px;right:10px;background:var(--green);color:white;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:50px;display:none;}
+.med-card.taken .taken-badge{display:block;}
+
+/* PROGRESS RING */
+.ring-section{background:var(--card);border-radius:var(--radius);border:2px solid var(--border);padding:20px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow-card);margin-bottom:14px;}
+.ring-wrap{flex-shrink:0;position:relative;width:90px;height:90px;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:8;}
+.ring-fill{fill:none;stroke:var(--green);stroke-width:8;stroke-linecap:round;stroke-dasharray:226;stroke-dashoffset:68;transition:stroke-dashoffset 1s ease;}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-pct{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2rem;color:var(--green);}
+.ring-lbl{font-size:.58rem;color:var(--text3);font-weight:700;letter-spacing:.5px;}
+.ring-info{flex:1;}
+.ring-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;margin-bottom:5px;}
+.ring-sub{font-size:.78rem;color:var(--text3);line-height:1.5;}
+.week-dots{display:flex;gap:6px;margin-top:12px;}
+.wday{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.6rem;color:var(--text3);font-weight:700;}
+.wdot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;}
+.wdot.done{background:var(--green);}
+.wdot.today{background:var(--primary);}
+.wdot.miss{background:var(--red-light);border:2px solid var(--red);}
+.wdot.future{background:var(--border);}
+
+/* FEELING */
+.feeling-row{display:flex;gap:10px;flex-wrap:wrap;}
+.feel-btn{flex:1;min-width:70px;background:var(--bg);border:2px solid var(--border);border-radius:14px;padding:14px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s;}
+.feel-btn:hover,.feel-btn.sel{border-color:var(--primary);background:var(--primary-light);}
+.feel-emoji{font-size:1.8rem;}
+.feel-lbl{font-size:.7rem;font-weight:700;color:var(--text2);}
+
+/* STATUS ROWS */
+.status-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.status-row:last-child{border-bottom:none;padding-bottom:0;}
+.si{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+.stext{flex:1;}
+.sname{font-size:.88rem;font-weight:700;color:var(--text);}
+.sval{font-size:.75rem;color:var(--text3);margin-top:1px;}
+.sind{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ig{background:var(--green);box-shadow:0 0 6px rgba(26,158,92,.4);}
+.io{background:var(--orange);box-shadow:0 0 6px rgba(224,123,0,.4);}
+.ir{background:var(--red);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* QUICK GRID */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quick-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:20px 16px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;cursor:pointer;transition:all .25s;box-shadow:var(--shadow-card);}
+.quick-card:hover{transform:translateY(-3px);border-color:var(--primary);box-shadow:var(--shadow);}
+.qi{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.qi.b{background:var(--primary-light);}
+.qi.g{background:var(--green-light);}
+.qi.o{background:var(--orange-light);}
+.qi.r{background:var(--red-light);}
+.qi.p{background:var(--purple-light);}
+.qlabel{font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--text);line-height:1.3;}
+.qsub{font-size:.72rem;color:var(--text3);}
+
+/* CALL CARD */
+.call-card{background:var(--primary);border-radius:var(--radius);padding:18px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .25s;box-shadow:var(--shadow);margin-bottom:14px;}
+.call-card:hover{transform:translateY(-2px);}
+.call-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;color:white;}
+.call-sub{font-size:.75rem;color:rgba(255,255,255,.8);margin-top:2px;}
+.call-arrow{font-size:1.2rem;color:rgba(255,255,255,.7);margin-left:auto;}
+
+/* TIP */
+.tip-card{background:var(--primary-light);border:2px solid var(--primary);border-radius:var(--radius);padding:18px 20px;display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;}
+.tip-body .tip-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;margin-bottom:4px;}
+.tip-body .tip-text{font-size:.78rem;color:var(--text2);line-height:1.6;}
+
+/* EMERGENCY */
+.emergency-btn{width:100%;background:var(--red);color:white;border:none;border-radius:var(--radius);padding:18px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 20px rgba(204,51,51,.3);transition:all .25s;}
+.emergency-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(204,51,51,.4);}
+
+/* ── MEDICINES PAGE ── */
+.add-med-btn{width:100%;background:var(--primary);color:white;border:none;border-radius:var(--radius);padding:16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .25s;margin-bottom:14px;}
+.add-med-btn:hover{background:var(--primary-dark);transform:translateY(-2px);}
+.med-schedule{background:var(--card);border-radius:var(--radius);border:2px solid var(--border);overflow:hidden;box-shadow:var(--shadow-card);}
+.sched-header{background:var(--primary);color:white;padding:12px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;letter-spacing:.5px;}
+.sched-row{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border);}
+.sched-row:last-child{border-bottom:none;}
+.sched-icon{font-size:1.4rem;width:36px;text-align:center;}
+.sched-info{flex:1;}
+.sched-name{font-weight:700;font-size:.88rem;color:var(--text);}
+.sched-detail{font-size:.75rem;color:var(--text3);margin-top:2px;}
+.sched-time{font-size:.75rem;font-weight:700;color:var(--primary);background:var(--primary-light);padding:3px 10px;border-radius:50px;}
+.refill-card{background:var(--orange-light);border:2px solid var(--orange);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.refill-info{flex:1;}
+.refill-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--orange);}
+.refill-sub{font-size:.75rem;color:var(--text3);margin-top:2px;}
+.refill-btn{background:var(--orange);color:white;border:none;border-radius:10px;padding:10px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;transition:all .2s;}
+.refill-btn:hover{background:#b86000;}
+
+/* ── HEALTH PAGE ── */
+.health-metric{background:var(--card);border-radius:var(--radius);border:2px solid var(--border);padding:20px;box-shadow:var(--shadow-card);margin-bottom:14px;}
+.hm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.hm-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;}
+.hm-badge{font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:50px;}
+.hm-badge.good{background:var(--green-light);color:var(--green);}
+.hm-badge.warn{background:var(--orange-light);color:var(--orange);}
+.hm-badge.bad{background:var(--red-light);color:var(--red);}
+.hm-value{font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:var(--text);line-height:1;}
+.hm-unit{font-size:.8rem;color:var(--text3);margin-top:3px;}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:70px;margin-top:14px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar{border-radius:6px 6px 0 0;width:100%;transition:height .8s ease;min-height:4px;}
+.bar-lbl{font-size:.6rem;color:var(--text3);font-weight:700;}
+.hm-row{display:flex;gap:12px;margin-top:10px;}
+.hm-mini{flex:1;background:var(--bg);border-radius:12px;padding:12px;text-align:center;}
+.hm-mini-val{font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;color:var(--text);}
+.hm-mini-lbl{font-size:.65rem;color:var(--text3);margin-top:2px;}
+.steps-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin:10px 0 4px;}
+.steps-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--primary),var(--green));width:42%;}
+
+/* ── FAMILY PAGE ── */
+.family-card{background:var(--card);border-radius:var(--radius);border:2px solid var(--border);padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:12px;box-shadow:var(--shadow-card);transition:all .25s;}
+.family-card:hover{transform:translateY(-2px);border-color:var(--primary);}
+.family-avatar{width:58px;height:58px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;border:2px solid var(--border);}
+.family-info{flex:1;}
+.family-name{font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;color:var(--text);}
+.family-role{font-size:.75rem;color:var(--text3);margin-top:2px;}
+.family-status{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:50px;margin-top:5px;display:inline-block;}
+.family-status.online{background:var(--green-light);color:var(--green);}
+.family-status.offline{background:var(--border);color:var(--text3);}
+.family-actions{display:flex;gap:8px;}
+.fam-btn{width:40px;height:40px;border-radius:50%;border:2px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;transition:all .2s;}
+.fam-btn:hover{background:var(--primary);border-color:var(--primary);color:white;}
+.alert-card{background:linear-gradient(135deg,var(--green-light),var(--bg));border:2px solid var(--green);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;}
+.alert-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;color:var(--green);margin-bottom:4px;}
+.alert-text{font-size:.8rem;color:var(--text2);line-height:1.5;}
+.add-family-btn{width:100%;background:none;border:2px dashed var(--border);border-radius:var(--radius);padding:18px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;color:var(--text3);cursor:pointer;transition:all .25s;}
+.add-family-btn:hover{border-color:var(--primary);color:var(--primary);}
+
+/* ── SETTINGS PAGE ── */
+.settings-section{background:var(--card);border-radius:var(--radius);border:2px solid var(--border);overflow:hidden;box-shadow:var(--shadow-card);margin-bottom:16px;}
+.settings-row{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s;}
+.settings-row:last-child{border-bottom:none;}
+.settings-row:hover{background:var(--bg);}
+.set-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.set-info{flex:1;}
+.set-name{font-weight:700;font-size:.88rem;color:var(--text);}
+.set-sub{font-size:.73rem;color:var(--text3);margin-top:1px;}
+.set-arrow{color:var(--text3);font-size:1rem;}
+.toggle-row{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.tog{width:48px;height:26px;background:var(--border);border-radius:50px;position:relative;cursor:pointer;border:none;transition:background .3s;flex-shrink:0;}
+.tog.on{background:var(--green);}
+.tog-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:white;border-radius:50%;transition:left .3s;box-shadow:0 2px 4px rgba(0,0,0,.2);}
+.tog.on .tog-thumb{left:25px;}
+.profile-card{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:24px;display:flex;align-items:center;gap:16px;margin-bottom:16px;box-shadow:var(--shadow);}
+.profile-avatar{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;border:3px solid rgba(255,255,255,.4);}
+.profile-name{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.1rem;color:white;}
+.profile-age{font-size:.8rem;color:rgba(255,255,255,.75);margin-top:3px;}
+.profile-id{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:2px;}
+.edit-profile{background:rgba(255,255,255,.2);color:white;border:2px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 16px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:all .2s;margin-top:8px;display:inline-block;}
+.edit-profile:hover{background:rgba(255,255,255,.35);}
+.logout-btn{width:100%;background:var(--red-light);border:2px solid var(--red);border-radius:var(--radius);padding:16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--red);cursor:pointer;transition:all .25s;}
+.logout-btn:hover{background:var(--red);color:white;}
+.font-size-control{display:flex;gap:10px;padding:4px 0;}
+.fs-btn{flex:1;background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:10px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;color:var(--text2);transition:all .2s;}
+.fs-btn.active,.fs-btn:hover{background:var(--primary);color:white;border-color:var(--primary);}
+.fs-btn.s{font-size:.78rem;}
+.fs-btn.m{font-size:.9rem;}
+.fs-btn.l{font-size:1.05rem;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:2px solid var(--border);display:flex;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 8px 14px;cursor:pointer;transition:all .2s;border:none;background:none;color:var(--text3);position:relative;}
+.nav-item.active{color:var(--primary);}
+.nav-item:hover{color:var(--primary);}
+.nav-emoji{font-size:1.3rem;}
+.nav-label{font-size:.62rem;font-weight:700;margin-top:3px;font-family:'Nunito',sans-serif;}
+.nav-dot{position:absolute;top:8px;right:calc(50% - 14px);width:7px;height:7px;background:var(--red);border-radius:50%;display:none;}
+.nav-dot.show{display:block;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border-radius:28px 28px 0 0;padding:24px 20px 44px;width:100%;max-width:680px;transform:translateY(100%);transition:transform .3s ease;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-handle{width:44px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2rem;}
+.modal-close{background:var(--bg);border:2px solid var(--border);border-radius:50%;width:34px;height:34px;font-size:.9rem;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--red-light);border-color:var(--red);color:var(--red);}
+.symptom-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.sym-btn{background:var(--bg);border:2px solid var(--border);border-radius:14px;padding:14px 10px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;}
+.sym-btn:hover,.sym-btn.sel{border-color:var(--orange);background:var(--orange-light);}
+.sym-emoji{font-size:1.3rem;}
+.sym-name{font-size:.82rem;font-weight:700;color:var(--text);}
+.pain-lbl{font-size:.82rem;font-weight:700;color:var(--text2);margin-bottom:8px;}
+.pain-levels{display:flex;gap:6px;margin-bottom:18px;}
+.pain-btn{flex:1;height:46px;border-radius:12px;border:2px solid var(--border);background:var(--bg);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;color:var(--text2);transition:all .2s;}
+.pain-btn:hover,.pain-btn.sel{border-color:var(--orange);background:var(--orange-light);color:var(--orange);}
+.submit-btn{width:100%;background:var(--green);color:white;border:none;border-radius:14px;padding:16px;font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;cursor:pointer;transition:all .25s;}
+.submit-btn:hover{background:var(--primary-dark);transform:translateY(-2px);}
+
+/* ADD MED MODAL */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:.8rem;font-weight:700;color:var(--text2);margin-bottom:6px;display:block;}
+.form-input{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:13px 14px;font-family:'Lato',sans-serif;font-size:.9rem;color:var(--text);outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--primary);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* TOAST */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--green);color:white;padding:12px 26px;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;z-index:300;opacity:0;transition:all .3s;box-shadow:0 4px 20px rgba(26,158,92,.4);white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.red{background:var(--red);}
+.toast.blue{background:var(--primary);}
+
+button:focus-visible,a:focus-visible{outline:3px solid var(--primary);outline-offset:3px;}
+@media(max-width:420px){.quick-grid{grid-template-columns:1fr 1fr;}.symptom-grid{grid-template-columns:1fr 1fr;}.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Done!</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-pill">N</div>
+    NEXUS.AI
+  </div>
+  <div class="topbar-right">
+    <div class="font-controls">
+      <button class="font-btn s" onclick="setFont(16,this)">A</button>
+      <button class="font-btn m active" onclick="setFont(19,this)">A</button>
+      <button class="font-btn l" onclick="setFont(23,this)">A</button>
+    </div>
+    <button class="dark-btn" id="darkBtn" onclick="toggleDark()">🌙</button>
+  </div>
+</div>
+
+<!-- GREETING -->
+<div class="greeting">
+  <div class="greet-time" id="greetTime">SUNDAY MORNING</div>
+  <div class="greet-name" id="greetName">Good Morning, Friend! 👋</div>
+  <div class="greet-sub">Let's take care of your health today</div>
+</div>
+
+<!-- ══════════════════ HOME PAGE ══════════════════ -->
+<div class="page active" id="page-home">
+
+  <div class="slabel">📊 This Week</div>
+  <div class="ring-section">
+    <div class="ring-wrap">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <circle class="ring-bg" cx="45" cy="45" r="36"/>
+        <circle class="ring-fill" id="ringFill" cx="45" cy="45" r="36"/>
+      </svg>
+      <div class="ring-text">
+        <div class="ring-pct" id="ringPct">70%</div>
+        <div class="ring-lbl">TAKEN</div>
+      </div>
+    </div>
+    <div class="ring-info">
+      <div class="ring-title">Medicine Adherence</div>
+      <div class="ring-sub">7 of 10 doses taken this week. You're doing great!</div>
+      <div class="week-dots">
+        <div class="wday"><div class="wdot done">✓</div><span>Mon</span></div>
+        <div class="wday"><div class="wdot done">✓</div><span>Tue</span></div>
+        <div class="wday"><div class="wdot done">✓</div><span>Wed</span></div>
+        <div class="wday"><div class="wdot miss">✗</div><span>Thu</span></div>
+        <div class="wday"><div class="wdot done">✓</div><span>Fri</span></div>
+        <div class="wday"><div class="wdot done">✓</div><span>Sat</span></div>
+        <div class="wday"><div class="wdot today">📍</div><span>Today</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel">💊 Today's Medicines</div>
+  <div class="med-card" id="hmed1" onclick="toggleMed('hmed1','home')">
+    <div class="med-icon">💊</div>
+    <div class="med-info">
+      <div class="med-name">Metformin 500mg</div>
+      <div class="med-detail">1 tablet • With breakfast</div>
+      <div class="med-time">⏰ 8:00 AM</div>
+    </div>
+    <div class="check-btn" id="hchk1">☐</div>
+    <div class="taken-badge">TAKEN ✓</div>
+  </div>
+  <div class="med-card" id="hmed2" onclick="toggleMed('hmed2','home')">
+    <div class="med-icon">🔵</div>
+    <div class="med-info">
+      <div class="med-name">Lisinopril 10mg</div>
+      <div class="med-detail">1 tablet • Blood pressure</div>
+      <div class="med-time">⏰ 12:00 PM</div>
+    </div>
+    <div class="check-btn" id="hchk2">☐</div>
+    <div class="taken-badge">TAKEN ✓</div>
+  </div>
+  <div class="med-card" id="hmed3" onclick="toggleMed('hmed3','home')">
+    <div class="med-icon">🟡</div>
+    <div class="med-info">
+      <div class="med-name">Atorvastatin 20mg</div>
+      <div class="med-detail">1 tablet • With dinner</div>
+      <div class="med-time">⏰ 8:00 PM</div>
+    </div>
+    <div class="check-btn" id="hchk3">☐</div>
+    <div class="taken-badge">TAKEN ✓</div>
+  </div>
+
+  <div class="slabel">😊 How Are You Feeling?</div>
+  <div class="card">
+    <div class="card-title">Tap how you feel right now:</div>
+    <div class="feeling-row">
+      <button class="feel-btn" onclick="selectFeeling(this)"><div class="feel-emoji">😄</div><div class="feel-lbl">Great!</div></button>
+      <button class="feel-btn" onclick="selectFeeling(this)"><div class="feel-emoji">😊</div><div class="feel-lbl">Good</div></button>
+      <button class="feel-btn" onclick="selectFeeling(this)"><div class="feel-emoji">😐</div><div class="feel-lbl">Okay</div></button>
+      <button class="feel-btn" onclick="selectFeeling(this)"><div class="feel-emoji">😔</div><div class="feel-lbl">Not Well</div></button>
+      <button class="feel-btn" onclick="selectFeeling(this)"><div class="feel-emoji">🤒</div><div class="feel-lbl">Unwell</div></button>
+    </div>
+  </div>
+
+  <div class="slabel">🩺 Health Status</div>
+  <div class="card">
+    <div class="hm-header"><div class="card-title" style="margin-bottom:0">Today's Overview</div><div class="hm-badge good">STABLE</div></div>
+    <div class="status-row"><div class="si" style="background:var(--red-light)">❤️</div><div class="stext"><div class="sname">Blood Pressure</div><div class="sval">128/82 mmHg • Slightly high</div></div><div class="sind io"></div></div>
+    <div class="status-row"><div class="si" style="background:var(--green-light)">🩸</div><div class="stext"><div class="sname">Blood Sugar</div><div class="sval">105 mg/dL • Normal</div></div><div class="sind ig"></div></div>
+    <div class="status-row"><div class="si" style="background:var(--primary-light)">😴</div><div class="stext"><div class="sname">Sleep</div><div class="sval">6.5 hours • Could be better</div></div><div class="sind io"></div></div>
+    <div class="status-row"><div class="si" style="background:var(--green-light)">🚶</div><div class="stext"><div class="sname">Steps Today</div><div class="sval">3,240 steps • Keep going!</div></div><div class="sind ig"></div></div>
+  </div>
+
+  <div class="slabel">⚡ Quick Actions</div>
+  <div class="quick-grid">
+    <div class="quick-card" onclick="openSymptoms()"><div class="qi o">🤕</div><div class="qlabel">Report Symptoms</div><div class="qsub">Tell us how you feel</div></div>
+    <div class="quick-card" onclick="showToast('📞 Calling Dr. Priya Sharma...','blue')"><div class="qi b">👨‍⚕️</div><div class="qlabel">Call My Doctor</div><div class="qsub">Dr. Priya Sharma</div></div>
+    <div class="quick-card" onclick="showToast('👨‍👩‍👧 Alert sent to family!','blue')"><div class="qi g">👨‍👩‍👧</div><div class="qlabel">Alert Family</div><div class="qsub">Send a check-in</div></div>
+    <div class="quick-card" onclick="showToast('🚗 Scheduling pharmacy pickup...')"><div class="qi r">💊</div><div class="qlabel">Refill Medicine</div><div class="qsub">Schedule pickup</div></div>
+  </div>
+
+  <div class="slabel">📞 Need Help?</div>
+  <div class="call-card" onclick="showToast('📞 Connecting to Dr. Priya Sharma...','blue')">
+    <div style="font-size:1.8rem">👨‍⚕️</div>
+    <div class="call-info"><div class="call-title">Call Your Doctor Now</div><div class="call-sub">Dr. Priya Sharma • Available 9AM–5PM</div></div>
+    <div class="call-arrow">›</div>
+  </div>
+
+  <div class="slabel">💡 Today's Tip</div>
+  <div class="tip-card">
+    <div style="font-size:1.6rem;flex-shrink:0">💧</div>
+    <div class="tip-body"><div class="tip-title">Stay Hydrated!</div><div class="tip-text">Drink at least 8 glasses of water today. Taking your medicine with a full glass of water helps it work better and is easier on your stomach.</div></div>
+  </div>
+
+  <div class="slabel">🆘 Emergency</div>
+  <button class="emergency-btn" onclick="showToast('🆘 Emergency services alerted!','red')">🆘 &nbsp; EMERGENCY — Call for Help</button>
+</div>
+
+<!-- ══════════════════ MEDICINES PAGE ══════════════════ -->
+<div class="page" id="page-medicines">
+
+  <div class="slabel">➕ Add Medicine</div>
+  <button class="add-med-btn" onclick="openAddMed()">➕ &nbsp; Add New Medicine</button>
+
+  <div class="slabel">⚠️ Refill Needed</div>
+  <div class="refill-card">
+    <div style="font-size:1.8rem">⚠️</div>
+    <div class="refill-info"><div class="refill-title">Metformin 500mg</div><div class="refill-sub">Only 5 tablets left • Refill by Sunday</div></div>
+    <button class="refill-btn" onclick="showToast('🚗 Pharmacy ride scheduled!')">Order Now</button>
+  </div>
+
+  <div class="slabel">🌅 Morning Medicines</div>
+  <div class="med-schedule">
+    <div class="sched-header">⏰ 8:00 AM</div>
+    <div class="sched-row"><div class="sched-icon">💊</div><div class="sched-info"><div class="sched-name">Metformin 500mg</div><div class="sched-detail">1 tablet • With breakfast • Diabetes</div></div><div class="sched-time">8:00 AM</div></div>
+    <div class="sched-row"><div class="sched-icon">🟠</div><div class="sched-info"><div class="sched-name">Vitamin D3</div><div class="sched-detail">1 capsule • With food</div></div><div class="sched-time">8:00 AM</div></div>
+  </div>
+
+  <div class="slabel">☀️ Afternoon Medicines</div>
+  <div class="med-schedule">
+    <div class="sched-header">⏰ 12:00 PM</div>
+    <div class="sched-row"><div class="sched-icon">🔵</div><div class="sched-info"><div class="sched-name">Lisinopril 10mg</div><div class="sched-detail">1 tablet • Blood pressure</div></div><div class="sched-time">12:00 PM</div></div>
+  </div>
+
+  <div class="slabel">🌙 Evening Medicines</div>
+  <div class="med-schedule">
+    <div class="sched-header">⏰ 8:00 PM</div>
+    <div class="sched-row"><div class="sched-icon">🟡</div><div class="sched-info"><div class="sched-name">Atorvastatin 20mg</div><div class="sched-detail">1 tablet • With dinner • Cholesterol</div></div><div class="sched-time">8:00 PM</div></div>
+    <div class="sched-row"><div class="sched-icon">🩷</div><div class="sched-info"><div class="sched-name">Aspirin 75mg</div><div class="sched-detail">1 tablet • Heart health</div></div><div class="sched-time">8:00 PM</div></div>
+  </div>
+
+  <div class="slabel">📋 All Medicines</div>
+  <div class="med-card" id="mmed1" onclick="toggleMed('mmed1','med')">
+    <div class="med-icon">💊</div>
+    <div class="med-info"><div class="med-name">Metformin 500mg</div><div class="med-detail">Twice daily • Diabetes management</div><div class="med-time">⏰ 8AM & 8PM</div></div>
+    <div class="check-btn" id="mchk1">☐</div>
+    <div class="taken-badge">TAKEN ✓</div>
+  </div>
+  <div class="med-card" id="mmed2" onclick="toggleMed('mmed2','med')">
+    <div class="med-icon">🔵</div>
+    <div class="med-info"><div class="med-name">Lisinopril 10mg</div><div class="med-detail">Once daily • Blood pressure</div><div class="med-time">⏰ 12:00 PM</div></div>
+    <div class="check-btn" id="mchk2">☐</div>
+    <div class="taken-badge">TAKEN ✓</div>
+  </div>
+</div>
+
+<!-- ══════════════════ HEALTH PAGE ══════════════════ -->
+<div class="page" id="page-health">
+
+  <div class="slabel">❤️ Blood Pressure</div>
+  <div class="health-metric">
+    <div class="hm-header"><div class="hm-title">Blood Pressure</div><div class="hm-badge warn">SLIGHTLY HIGH</div></div>
+    <div class="hm-value">128 <span style="font-size:1rem;color:var(--text3)">/82</span></div>
+    <div class="hm-unit">mmHg • Measured today 9:30 AM</div>
+    <div class="chart-bars" id="bpBars"></div>
+    <div class="hm-row">
+      <div class="hm-mini"><div class="hm-mini-val">118</div><div class="hm-mini-lbl">Lowest This Week</div></div>
+      <div class="hm-mini"><div class="hm-mini-val">135</div><div class="hm-mini-lbl">Highest This Week</div></div>
+      <div class="hm-mini"><div class="hm-mini-val">126</div><div class="hm-mini-lbl">Weekly Average</div></div>
+    </div>
+  </div>
+
+  <div class="slabel">🩸 Blood Sugar</div>
+  <div class="health-metric">
+    <div class="hm-header"><div class="hm-title">Blood Sugar</div><div class="hm-badge good">NORMAL</div></div>
+    <div class="hm-value">105 <span style="font-size:1rem;color:var(--text3)">mg/dL</span></div>
+    <div class="hm-unit">Fasting • Measured this morning</div>
+    <div class="chart-bars" id="bsBars"></div>
+    <div class="hm-row">
+      <div class="hm-mini"><div class="hm-mini-val">98</div><div class="hm-mini-lbl">Lowest</div></div>
+      <div class="hm-mini"><div class="hm-mini-val">120</div><div class="hm-mini-lbl">Highest</div></div>
+      <div class="hm-mini"><div class="hm-mini-val">108</div><div class="hm-mini-lbl">Average</div></div>
+    </div>
+  </div>
+
+  <div class="slabel">🚶 Activity</div>
+  <div class="health-metric">
+    <div class="hm-header"><div class="hm-title">Steps Today</div><div class="hm-badge warn">42% OF GOAL</div></div>
+    <div class="hm-value">3,240</div>
+    <div class="hm-unit">Goal: 8,000 steps</div>
+    <div class="steps-bar"><div class="steps-fill"></div></div>
+    <div style="font-size:.75rem;color:var(--text3)">4,760 more steps to reach your goal today</div>
+    <div class="hm-row" style="margin-top:12px">
+      <div class="hm-mini"><div class="hm-mini-val">🔥</div><div class="hm-mini-lbl">245 Cal Burned</div></div>
+      <div class="hm-mini"><div class="hm-mini-val">😴</div><div class="hm-mini-lbl">6.5 hrs Sleep</div></div>
+      <div class="hm-mini"><div class="hm-mini-val">💧</div><div class="hm-mini-lbl">5/8 Glasses</div></div>
+    </div>
+  </div>
+
+  <div class="slabel">📈 AI Risk Score</div>
+  <div class="card">
+    <div class="hm-header"><div class="card-title" style="margin-bottom:0">Non-Adherence Risk</div><div class="hm-badge good">LOW RISK</div></div>
+    <div style="margin:14px 0;background:var(--border);height:14px;border-radius:7px;overflow:hidden;">
+      <div style="height:100%;width:18%;background:linear-gradient(90deg,var(--green),var(--primary));border-radius:7px;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--text3);margin-bottom:12px;"><span>Low Risk</span><span>18%</span><span>High Risk</span></div>
+    <div style="background:var(--green-light);border:1px solid var(--green);border-radius:12px;padding:12px;font-size:.8rem;color:var(--text2);line-height:1.6;">
+      ✅ <strong>Great!</strong> Our AI predicts you are likely to stay on track this week. Keep up your current routine and your health will continue to improve.
+    </div>
+  </div>
+
+  <div class="slabel">🆘 Emergency</div>
+  <button class="emergency-btn" onclick="showToast('🆘 Emergency services alerted!','red')">🆘 &nbsp; EMERGENCY — Call for Help</button>
+</div>
+
+<!-- ══════════════════ FAMILY PAGE ══════════════════ -->
+<div class="page" id="page-family">
+
+  <div class="slabel">✅ Family Alert Status</div>
+  <div class="alert-card">
+    <div class="alert-title">✅ Your Family is Watching Over You</div>
+    <div class="alert-text">Your daughter Priya and son Rajan are connected to your NEXUS.AI account. They will be automatically alerted if our AI detects any health risk. You're not alone! 💙</div>
+  </div>
+
+  <div class="slabel">👨‍👩‍👧 My Family & Caregivers</div>
+
+  <div class="family-card">
+    <div class="family-avatar">👩</div>
+    <div class="family-info">
+      <div class="family-name">Priya (Daughter)</div>
+      <div class="family-role">Primary Caregiver • Chennai</div>
+      <div class="family-status online">🟢 Online Now</div>
+    </div>
+    <div class="family-actions">
+      <button class="fam-btn" onclick="showToast('📞 Calling Priya...','blue')" title="Call">📞</button>
+      <button class="fam-btn" onclick="showToast('💬 Message sent to Priya!')">💬</button>
+    </div>
+  </div>
+
+  <div class="family-card">
+    <div class="family-avatar">👦</div>
+    <div class="family-info">
+      <div class="family-name">Rajan (Son)</div>
+      <div class="family-role">Emergency Contact • Mumbai</div>
+      <div class="family-status online">🟢 Online</div>
+    </div>
+    <div class="family-actions">
+      <button class="fam-btn" onclick="showToast('📞 Calling Rajan...','blue')">📞</button>
+      <button class="fam-btn" onclick="showToast('💬 Message sent to Rajan!')">💬</button>
+    </div>
+  </div>
+
+  <div class="family-card">
+    <div class="family-avatar">👨‍⚕️</div>
+    <div class="family-info">
+      <div class="family-name">Dr. Priya Sharma</div>
+      <div class="family-role">General Physician • Apollo Hospital</div>
+      <div class="family-status offline">🔴 Available 9AM–5PM</div>
+    </div>
+    <div class="family-actions">
+      <button class="fam-btn" onclick="showToast('📞 Calling Dr. Sharma...','blue')">📞</button>
+      <button class="fam-btn" onclick="showToast('📋 Message sent to clinic!')">💬</button>
+    </div>
+  </div>
+
+  <button class="add-family-btn" onclick="showToast('➕ Opening add caregiver form...')">➕ &nbsp; Add Family Member or Caregiver</button>
+
+  <div class="slabel">📢 Send Group Alert</div>
+  <div class="quick-grid">
+    <div class="quick-card" onclick="showToast('✅ Check-in sent to all family!')"><div class="qi g">💚</div><div class="qlabel">I'm Doing Well</div><div class="qsub">Send check-in</div></div>
+    <div class="quick-card" onclick="showToast('🆘 SOS alert sent to family!','red')"><div class="qi r">🆘</div><div class="qlabel">Need Help Now</div><div class="qsub">Alert everyone</div></div>
+    <div class="quick-card" onclick="showToast('💊 Medicine reminder shared!')"><div class="qi b">💊</div><div class="qlabel">Medicine Reminder</div><div class="qsub">Remind caregiver</div></div>
+    <div class="quick-card" onclick="showToast('📍 Location shared with family!','blue')"><div class="qi p">📍</div><div class="qlabel">Share Location</div><div class="qsub">Let them know</div></div>
+  </div>
+
+  <div class="slabel">📋 Recent Activity</div>
+  <div class="card">
+    <div class="status-row"><div class="si" style="background:var(--green-light)">✅</div><div class="stext"><div class="sname">Priya checked your health report</div><div class="sval">Today, 9:15 AM</div></div></div>
+    <div class="status-row"><div class="si" style="background:var(--primary-light)">💊</div><div class="stext"><div class="sname">Medicine reminder sent to Priya</div><div class="sval">Yesterday, 7:55 AM</div></div></div>
+    <div class="status-row"><div class="si" style="background:var(--orange-light)">⚠️</div><div class="stext"><div class="sname">AI alert sent — missed dose detected</div><div class="sval">Thursday, 9:00 AM</div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SETTINGS PAGE ══════════════════ -->
+<div class="page" id="page-settings">
+
+  <div class="profile-card">
+    <div class="profile-avatar">🧓</div>
+    <div>
+      <div class="profile-name">Ramesh Kumar</div>
+      <div class="profile-age">Age 67 • Type 2 Diabetes, Hypertension</div>
+      <div class="profile-id">Patient ID: NX-2024-0042</div>
+      <button class="edit-profile" onclick="showToast('✏️ Opening profile editor...')">✏️ Edit Profile</button>
+    </div>
+  </div>
+
+  <div class="slabel">🔤 Text Size</div>
+  <div class="card" style="padding:16px 18px;">
+    <div class="font-size-control">
+      <button class="fs-btn s" onclick="setFontSettings(16,this)">Small A</button>
+      <button class="fs-btn m active" onclick="setFontSettings(19,this)">Medium A</button>
+      <button class="fs-btn l" onclick="setFontSettings(23,this)">Large A</button>
+    </div>
+  </div>
+
+  <div class="slabel">🔔 Notifications</div>
+  <div class="settings-section">
+    <div class="toggle-row">
+      <div class="si" style="background:var(--primary-light)">💊</div>
+      <div class="stext" style="flex:1"><div class="sname">Medicine Reminders</div><div class="sval">Get reminded at scheduled times</div></div>
+      <button class="tog on" onclick="toggleSetting(this)"><div class="tog-thumb"></div></button>
+    </div>
+    <div class="toggle-row">
+      <div class="si" style="background:var(--green-light)">👨‍👩‍👧</div>
+      <div class="stext" style="flex:1"><div class="sname">Family Alerts</div><div class="sval">Notify family if risk detected</div></div>
+      <button class="tog on" onclick="toggleSetting(this)"><div class="tog-thumb"></div></button>
+    </div>
+    <div class="toggle-row">
+      <div class="si" style="background:var(--orange-light)">🤖</div>
+      <div class="stext" style="flex:1"><div class="sname">AI Health Insights</div><div class="sval">Daily tips and risk alerts</div></div>
+      <button class="tog on" onclick="toggleSetting(this)"><div class="tog-thumb"></div></button>
+    </div>
+    <div class="toggle-row">
+      <div class="si" style="background:var(--purple-light)">😴</div>
+      <div class="stext" style="flex:1"><div class="sname">Sleep & Activity Tracking</div><div class="sval">Monitor via wearable device</div></div>
+      <button class="tog" onclick="toggleSetting(this)"><div class="tog-thumb"></div></button>
+    </div>
+  </div>
+
+  <div class="slabel">🎨 Appearance</div>
+  <div class="settings-section">
+    <div class="toggle-row">
+      <div class="si" style="background:var(--bg)">🌙</div>
+      <div class="stext" style="flex:1"><div class="sname">Dark Mode</div><div class="sval">Easier on eyes at night</div></div>
+      <button class="tog" id="settingsDarkTog" onclick="toggleDarkSettings(this)"><div class="tog-thumb"></div></button>
+    </div>
+  </div>
+
+  <div class="slabel">⚙️ Account</div>
+  <div class="settings-section">
+    <div class="settings-row" onclick="showToast('🏥 Opening hospital connection...')">
+      <div class="set-icon" style="background:var(--primary-light)">🏥</div>
+      <div class="set-info"><div class="set-name">Connected Hospital</div><div class="set-sub">Apollo Hospital Chennai</div></div>
+      <div class="set-arrow">›</div>
+    </div>
+    <div class="settings-row" onclick="showToast('👨‍⚕️ Opening doctor profile...')">
+      <div class="set-icon" style="background:var(--green-light)">👨‍⚕️</div>
+      <div class="set-info"><div class="set-name">My Doctor</div><div class="set-sub">Dr. Priya Sharma</div></div>
+      <div class="set-arrow">›</div>
+    </div>
+    <div class="settings-row" onclick="showToast('🌍 Opening language settings...')">
+      <div class="set-icon" style="background:var(--orange-light)">🌍</div>
+      <div class="set-info"><div class="set-name">Language</div><div class="set-sub">English</div></div>
+      <div class="set-arrow">›</div>
+    </div>
+    <div class="settings-row" onclick="showToast('🔒 Opening privacy settings...')">
+      <div class="set-icon" style="background:var(--purple-light)">🔒</div>
+      <div class="set-info"><div class="set-name">Privacy & Data</div><div class="set-sub">Manage your health data</div></div>
+      <div class="set-arrow">›</div>
+    </div>
+    <div class="settings-row" onclick="showToast('❓ Opening help center...')">
+      <div class="set-icon" style="background:var(--primary-light)">❓</div>
+      <div class="set-info"><div class="set-name">Help & Support</div><div class="set-sub">Call us or chat</div></div>
+      <div class="set-arrow">›</div>
+    </div>
+  </div>
+
+  <button class="logout-btn" onclick="showToast('👋 Logging out...','red')">🚪 &nbsp; Log Out</button>
+  <div style="text-align:center;font-size:.7rem;color:var(--text3);margin-top:16px;padding-bottom:8px;">NEXUS.AI v2.1.0 • Your health, our priority 💙</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchPage('home',this)">
+    <div class="nav-emoji">🏠</div><div class="nav-label">Home</div>
+  </button>
+  <button class="nav-item" onclick="switchPage('medicines',this)">
+    <div class="nav-emoji">💊</div><div class="nav-label">Medicines</div>
+    <div class="nav-dot show"></div>
+  </button>
+  <button class="nav-item" onclick="switchPage('health',this)">
+    <div class="nav-emoji">📊</div><div class="nav-label">Health</div>
+  </button>
+  <button class="nav-item" onclick="switchPage('family',this)">
+    <div class="nav-emoji">👨‍👩‍👧</div><div class="nav-label">Family</div>
+  </button>
+  <button class="nav-item" onclick="switchPage('settings',this)">
+    <div class="nav-emoji">⚙️</div><div class="nav-label">Settings</div>
+  </button>
+</nav>
+
+<!-- SYMPTOM MODAL -->
+<div class="modal-overlay" id="symptomModal" onclick="closeIfBg(event,'symptomModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🤕 Report Symptoms</div>
+      <button class="modal-close" onclick="closeModal('symptomModal')">✕</button>
+    </div>
+    <div class="pain-lbl">Pain Level (1 = None, 5 = Severe)</div>
+    <div class="pain-levels">
+      <button class="pain-btn" onclick="selPain(this)">1<br>😊</button>
+      <button class="pain-btn" onclick="selPain(this)">2<br>😐</button>
+      <button class="pain-btn" onclick="selPain(this)">3<br>😟</button>
+      <button class="pain-btn" onclick="selPain(this)">4<br>😣</button>
+      <button class="pain-btn" onclick="selPain(this)">5<br>😭</button>
+    </div>
+    <div class="pain-lbl">What symptoms? (tap all that apply)</div>
+    <div class="symptom-grid">
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">🤢</span><span class="sym-name">Nausea</span></button>
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">🤕</span><span class="sym-name">Headache</span></button>
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">😵‍💫</span><span class="sym-name">Dizziness</span></button>
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">😮‍💨</span><span class="sym-name">Breathless</span></button>
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">🥶</span><span class="sym-name">Chills</span></button>
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">😴</span><span class="sym-name">Very Tired</span></button>
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">🫁</span><span class="sym-name">Chest Pain</span></button>
+      <button class="sym-btn" onclick="this.classList.toggle('sel')"><span class="sym-emoji">🤧</span><span class="sym-name">Other</span></button>
+    </div>
+    <button class="submit-btn" onclick="submitSymptoms()">✅ &nbsp; Send to My Doctor</button>
+  </div>
+</div>
+
+<!-- ADD MEDICINE MODAL -->
+<div class="modal-overlay" id="addMedModal" onclick="closeIfBg(event,'addMedModal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">➕ Add New Medicine</div>
+      <button class="modal-close" onclick="closeModal('addMedModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Medicine Name</label>
+      <input class="form-input" type="text" placeholder="e.g. Paracetamol 500mg"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Dosage</label>
+        <input class="form-input" type="text" placeholder="e.g. 1 tablet"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time</label>
+        <input class="form-input" type="time" value="08:00"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Instructions</label>
+      <input class="form-input" type="text" placeholder="e.g. After meals, with water"/>
+    </div>
+    <button class="submit-btn" onclick="addMedicine()">💊 &nbsp; Add Medicine</button>
+  </div>
+</div>
+
+<script>
+// ── GREETING
+const now = new Date();
+const h = now.getHours();
+const greet = h<12?'Good Morning':h<17?'Good Afternoon':'Good Evening';
+document.getElementById('greetName').textContent = greet + ', Friend! 👋';
+const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('greetTime').textContent = days[now.getDay()].toUpperCase() + ' • ' + mons[now.getMonth()] + ' ' + now.getDate();
+
+// ── PAGE SWITCHING
+function switchPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+  // remove dot on medicines
+  if(name==='medicines') btn.querySelector('.nav-dot')?.classList.remove('show');
+}
+
+// ── DARK MODE
+let isDark = false;
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+  const st = document.getElementById('settingsDarkTog');
+  if(st) st.classList.toggle('on', isDark);
+}
+function toggleDarkSettings(tog) {
+  tog.classList.toggle('on');
+  isDark = tog.classList.contains('on');
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+}
+
+// ── FONT SIZE
+function setFont(sz, btn) {
+  document.documentElement.style.setProperty('--font-base', sz+'px');
+  document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function setFontSettings(sz, btn) {
+  document.documentElement.style.setProperty('--font-base', sz+'px');
+  document.querySelectorAll('.fs-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.font-btn').forEach((b,i) => {
+    b.classList.toggle('active', [16,19,23][i]===sz);
+  });
+}
+
+// ── MEDICINE TOGGLE
+const medStates = {};
+function toggleMed(id, ctx) {
+  const card = document.getElementById(id);
+  const chk = card.querySelector('.check-btn');
+  const taken = !card.classList.contains('taken');
+  card.classList.toggle('taken', taken);
+  chk.textContent = taken ? '✓' : '☐';
+  medStates[id] = taken;
+  if(taken) showToast('✅ Medicine marked as taken!');
+  else showToast('↩️ Medicine unmarked');
+  updateRing();
+}
+function updateRing() {
+  const total = Object.keys(medStates).length;
+  const takenCount = Object.values(medStates).filter(Boolean).length;
+  const base = 7, baseTotal = 10;
+  const pct = Math.round(((base + takenCount) / (baseTotal + total)) * 100);
+  document.getElementById('ringPct').textContent = pct + '%';
+  const r = 36, circ = 2*Math.PI*r;
+  document.getElementById('ringFill').style.strokeDashoffset = circ - (circ * pct / 100);
+}
+
+// ── FEELING
+function selectFeeling(btn) {
+  document.querySelectorAll('.feel-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const emoji = btn.querySelector('.feel-emoji').textContent;
+  showToast('💙 Feeling logged: ' + btn.querySelector('.feel-lbl').textContent);
+}
+
+// ── SETTINGS TOGGLE
+function toggleSetting(tog) { tog.classList.toggle('on'); }
+
+// ── MODALS
+function openSymptoms() { document.getElementById('symptomModal').classList.add('open'); }
+function openAddMed() { document.getElementById('addMedModal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeIfBg(e, id) { if(e.target===document.getElementById(id)) closeModal(id); }
+function selPain(btn) { document.querySelectorAll('.pain-btn').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); }
+function submitSymptoms() { closeModal('symptomModal'); showToast('✅ Symptoms sent to your doctor!'); }
+function addMedicine() { closeModal('addMedModal'); showToast('💊 Medicine added successfully!'); }
+
+// ── TOAST
+let toastTimer;
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.className = 'toast' + (type ? ' '+type : '');
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── CHARTS
+function makeBars(containerId, values, color) {
+  const c = document.getElementById(containerId);
+  if(!c) return;
+  const max = Math.max(...values);
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  c.innerHTML = values.map((v,i) => `
+    <div class="bar-wrap">
+      <div class="bar" style="height:${Math.round((v/max)*60)}px;background:${color};"></div>
+      <div class="bar-lbl">${days[i]}</div>
+    </div>`).join('');
+}
+makeBars('bpBars',[125,130,118,135,128,122,128],'var(--orange)');
+makeBars('bsBars',[110,98,105,120,108,102,105],'var(--primary)');
+</script>
+</body>
+</html>
